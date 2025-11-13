@@ -69,5 +69,16 @@ SECRET_KEY=your_secret_key_here
 6. Run Migrations
 alembic upgrade head
 
-7. Start the Application
-python main.py
+<!-- 7. Start the Application
+python main.py -->
+
+# Seed the database:
+To seed the database, you need a Kaggle API key. Follow these steps to create one: https://www.kaggle.com/discussions/getting-started/524433 
+
+Seed database used: https://www.kaggle.com/datasets/pes12017000148/food-ingredients-and-recipe-dataset-with-images
+
+* title: Title of the dish
+* ingredients: The ingredients and amount (Unorganized)
+* Instructions: Has the recipe instructions to be followed to recreate the dish
+* Image_Name: Has the name of the image as stored in the Food Images zipped folder
+* Cleaned_Ingredients: Contains the ingredients after being processed and cleaned
