@@ -1,17 +1,18 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-# from routes import users
+from routes import users, recipes, favorites
+import models
+from database import engine
 
 app = FastAPI(title="MyRecipeBox API")
 
 origins = [
     "http://localhost:3000",  # React frontend
-    "http://192.168.18.66:8081",
 ]
 
 # Create tables (only runs if they don’t exist yet)
-# models.Base.metadata.create_all(bind=engine)
+models.Base.metadata.create_all(bind=engine)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,  # where your frontend runs
@@ -21,7 +22,9 @@ app.add_middleware(
 )
 
 # Include routers
-# app.include_router(users.router)
+app.include_router(users.router)
+app.include_router(recipes.router)
+app.include_router(favorites.router)
 
 @app.get("/")
 def read_root():
