@@ -14,7 +14,6 @@ python -m venv venv
 venv\Scripts\Activate
 ```
 
-
 macOS / Linux:
 ```
 python3 -m venv venv
@@ -60,13 +59,25 @@ Exit psql:
 
 5. Set Up Environment Variables
 
+NOTE: An example of how your .env file should look can be found in the file ".env.example"
+
 Create a .env file in the root directory and add the following:
 
 DATABASE_URL=postgresql://<username>:<password>@localhost:5432/recipebox_db
 SECRET_KEY=your_secret_key_here
 
+* <username>: The user name for the database, usually "postgres"
+* <password>: The password related to the created database
+* "your_secret_key_here" can be any random string of characters
 
-6. Run Migrations
+6. Create a hugging face API key:
+* Start by creating a hugging face profile (if you don't already have one) and logging in
+* Navigate to create an API key.
+To create an access token, go to your settings, then click on the Access Tokens tab. Click on the New token button to create a new User Access Token.
+* Copy that API token and paste it in your .env file.
+
+
+7. Run Migrations
 
 Autogenerate migrations from your SQLAlchemy models:
 ```
@@ -74,18 +85,18 @@ alembic revision --autogenerate -m "create users, recipes and favorites tables"
 ```
 alembic upgrade head
 
-7. To run the Fastapi backend
+8. To run the Fastapi backend
 
-Inside the folder: backend
+Inside the root folder
 ```
-uvicorn main:app --reload --host 0.0.0.0 --port 8008
+uvicorn backend.main:app --reload --host 0.0.0.0 --port 8008
 ```
 Access the FastAPI docs at: http://127.0.0.1:8008/docs 
 
-8. Start the Application 
-Inside the folder: backend
+9. Start the Application 
+Inside the root folder
 ```
-python main.py
+python -m backend.main
 ```
 
 # Seed the database:
@@ -93,9 +104,9 @@ python main.py
 https://www.kaggle.com/discussions/getting-started/524433 
 
 2. Download the data on to your machine:
-while in the backend folder: (This can take up to 2 min) (run this only once)
+while in the root folder: (This can take up to 2 min) (run this only once)
 ```
-python seed_data/download_dataset.py
+python -m backend.seed_data.download_dataset
 ```
 
 You can find the data in a folder "data"

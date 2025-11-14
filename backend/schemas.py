@@ -33,6 +33,14 @@ class RecipeResponse(RecipeBase):
     class Config:
         orm_mode = True
 
+class SaveRecipeRequest(BaseModel):
+    title: str
+    ingredients: list[str]
+    steps: str
+    image_url: str | None = None
+    created_by: int | None = None
+
+
 # -----------------------------
 # Helper function
 # -----------------------------

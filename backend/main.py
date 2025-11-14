@@ -1,9 +1,9 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import users, recipes, favorites
-import models
-from database import engine
+from backend.routes import users, recipes, favorites
+from backend import models
+from backend.database import engine
 
 app = FastAPI(title="MyRecipeBox API")
 

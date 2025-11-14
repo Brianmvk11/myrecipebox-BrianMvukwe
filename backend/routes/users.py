@@ -8,8 +8,8 @@ from passlib.context import CryptContext
 import jwt, os
 from dotenv import load_dotenv
 
-import models, schemas
-from database import get_db
+from backend import models, schemas
+from backend.database import get_db
 
 router = APIRouter(
     prefix="/users", 
