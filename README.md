@@ -128,3 +128,21 @@ Seed database used: https://www.kaggle.com/datasets/pes12017000148/food-ingredie
 * Instructions: Has the recipe instructions to be followed to recreate the dish
 * Image_Name: Has the name of the image as stored in the Food Images zipped folder
 * Cleaned_Ingredients: Contains the ingredients after being processed and cleaned
+
+# Running the front-end
+1. Make sure that you have Node.js installed by running:
+```
+node -v
+npm -v
+```
+
+2. Change directory into the frontend folder and install packages:
+```
+cd myrecipebox_frontend
+npm install
+```
+
+3. run the project
+```
+npm run dev
+```
