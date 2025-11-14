@@ -1,2 +1,5 @@
 #passwords
 .env
+
+#data
+backend/data

@@ -11,7 +11,7 @@ Favorites
 '''
 
 from sqlalchemy import Column, Integer, String, ForeignKey
-from database import Base
+from backend.database import Base
 from sqlalchemy.dialects.postgresql import ARRAY
 
 class Users(Base):

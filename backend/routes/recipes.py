@@ -6,12 +6,16 @@ import models, schemas
 from database import get_db
 from routes.users import get_current_user
 
-router = APIRouter(prefix="/recipes", tags=["recipes"])
-
+router = APIRouter(
+    prefix="/recipes", 
+    tags=["recipes"]
+)
 
 # Create Recipe
 @router.post("/")
-def create(recipe: schemas.RecipeCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
+def create(recipe: schemas.RecipeCreate, 
+           db: Session = Depends(get_db), 
+           user=Depends(get_current_user)):
     new_recipe = models.Recipes(
         title=recipe.title,
         ingredients=recipe.ingredients,
@@ -26,7 +30,7 @@ def create(recipe: schemas.RecipeCreate, db: Session = Depends(get_db), user=Dep
 
 
 # List Recipes
-@router.get("/")
+@router.get("/") #TODO: Make it display in batches of 10
 def list_recipes(db: Session = Depends(get_db)):
     return db.query(models.Recipes).all()
 
@@ -51,7 +55,7 @@ def update(recipe_id: int, update_data: schemas.RecipeUpdate, db: Session = Depe
     if recipe.created_by != user.id:
         raise HTTPException(status_code=403, detail="Not allowed to modify this recipe")
 
-    for key, value in update_data.dict(exclude_unset=True).items():
+    for key, value in update_data.model_dump(): #.items():
         setattr(recipe, key, value)
 
     db.commit()

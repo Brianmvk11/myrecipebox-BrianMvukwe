@@ -67,13 +67,48 @@ SECRET_KEY=your_secret_key_here
 
 
 6. Run Migrations
+
+Autogenerate migrations from your SQLAlchemy models:
+```
+alembic revision --autogenerate -m "create users, recipes and favorites tables"
+```
 alembic upgrade head
 
-<!-- 7. Start the Application
-python main.py -->
+7. To run the Fastapi backend
+
+Inside the folder: backend
+```
+uvicorn main:app --reload --host 0.0.0.0 --port 8008
+```
+Access the FastAPI docs at: http://127.0.0.1:8008/docs 
+
+8. Start the Application 
+Inside the folder: backend
+```
+python main.py
+```
 
 # Seed the database:
-To seed the database, you need a Kaggle API key. Follow these steps to create one: https://www.kaggle.com/discussions/getting-started/524433 
+1. To seed the database, you need a Kaggle API key. Follow these steps to create one (Follow thw steps under the heading "Installation & Authentication"):
+https://www.kaggle.com/discussions/getting-started/524433 
+
+2. Download the data on to your machine:
+while in the backend folder: (This can take up to 2 min) (run this only once)
+```
+python seed_data/download_dataset.py
+```
+
+You can find the data in a folder "data"
+
+3. Rename the csv file in the folder "data" from "Food Ingredients and Recipe Dataset with Image Name Mapping.csv" to "recipes.csv"
+
+4. Rename the folder from "Food Images" to "Food_Images"
+
+5. Populate the database with the data: (run from root)
+``` 
+python -m backend.seed_data.seed_db
+```
+
 
 Seed database used: https://www.kaggle.com/datasets/pes12017000148/food-ingredients-and-recipe-dataset-with-images
 
