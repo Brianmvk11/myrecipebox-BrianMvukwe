@@ -8,8 +8,8 @@ from backend.database import engine
 app = FastAPI(title="MyRecipeBox API")
 
 origins = [
-    # "http://localhost:3000",  # React frontend
-    "http://localhost:5173/",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
 
 # Create tables (only runs if they don’t exist yet)

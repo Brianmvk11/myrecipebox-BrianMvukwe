@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { registerUser } from "../api";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 
 
 export default function Register() {
@@ -9,18 +9,18 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const router = useRouter();
+  const navigate = useNavigate();
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setSuccess("");
 
+
     try {
       await registerUser({ name, email, password });
       setSuccess("Registration successful! You can now log in.");
-      router.push("/Login")
-
+      navigate("/")
     } catch (err: any) {
       setError(err.message);
     }

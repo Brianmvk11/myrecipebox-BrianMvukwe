@@ -1,9 +1,12 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route } from "react-router-dom";
 import AuthTabs from "./components/AuthTabs";
+import Dashboard from "./pages/Dashboard";
 
 export default function App() {
-  return <AuthTabs />;
+  return (
+    <Routes>
+      <Route path="/" element={<AuthTabs />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+    </Routes>
+  );
 }

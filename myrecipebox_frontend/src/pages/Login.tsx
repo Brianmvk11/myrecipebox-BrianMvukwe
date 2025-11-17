@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { loginUser } from "../api";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -22,7 +24,7 @@ export default function Login() {
       localStorage.setItem("email", res.email);
 
       alert("Login successful!");
-      // redirect later when routing is added
+      navigate("/dashboard")
 
     } catch (err: any) {
       setError(err.message);
