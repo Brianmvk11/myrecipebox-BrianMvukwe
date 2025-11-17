@@ -23,8 +23,8 @@ export default function Login() {
       localStorage.setItem("name", res.name);
       localStorage.setItem("email", res.email);
 
-      alert("Login successful!");
-      navigate("/dashboard")
+      // alert("Login successful!");
+      navigate("/home")
 
     } catch (err: any) {
       setError(err.message);

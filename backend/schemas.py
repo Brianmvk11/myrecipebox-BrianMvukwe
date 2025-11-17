@@ -30,8 +30,10 @@ class RecipeUpdate(BaseModel):
 class RecipeResponse(RecipeBase):
     id: int
     created_by: Optional[int]
-    class Config:
-        orm_mode = True
+    
+    model_config = {
+        "from_attributes": True
+    }
 
 class SaveRecipeRequest(BaseModel):
     title: str

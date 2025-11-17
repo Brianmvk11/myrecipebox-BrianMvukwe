@@ -52,3 +52,30 @@ export async function fetchMe(token: string) {
 
   return res.json();
 }
+
+// List recipes
+export async function listRecipes(page_number: number, page_size: number) {
+  const res = await fetch(`${API_URL}/recipes/?page=${page_number}&page_size=${page_size}`);
+
+  if (!res.ok) {
+    let err;
+    try { err = await res.json(); } catch { err = null; }
+    throw new Error(err?.detail || "Unable to get list of recipes");
+  }
+
+  return res.json();
+}
+
+// Search recipes by title
+export async function searchRecipes(q: string, page_number: number, page_size: number) {
+  const url = `${API_URL}/recipes/search?q=${encodeURIComponent(q)}&page=${page_number}&page_size=${page_size}`;
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    let err;
+    try { err = await res.json(); } catch { err = null; }
+    throw new Error(err?.detail || "Search failed");
+  }
+
+  return res.json();
+}

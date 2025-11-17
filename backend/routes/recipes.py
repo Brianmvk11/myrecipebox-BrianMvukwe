@@ -43,7 +43,7 @@ def create(recipe: schemas.RecipeCreate,
 
 
 # List Recipes
-@router.get("/")
+@router.get("/", response_model=dict)
 def list_recipes(
     page: int = 1,        # page number (1-based)
     page_size: int = 10,  # items per page
@@ -66,7 +66,7 @@ def list_recipes(
         "page_size": page_size,
         "total": total,
         "total_pages": (total + page_size - 1) // page_size,
-        "recipes": recipes,
+        "recipes": [schemas.RecipeResponse.model_validate(r).model_dump() for r in recipes],
     }
 
 # Get Single Recipe
