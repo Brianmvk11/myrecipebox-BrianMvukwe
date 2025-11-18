@@ -50,7 +50,7 @@ def get_favorites(db: Session = Depends(get_db), user=Depends(get_current_user))
     return recipes
 
 # Is this recipe a favorite?
-def is_favourite_recipe(db: Session, user_id: int, recipe_id: int) -> bool:
+def is_favorite_recipe(db: Session, user_id: int, recipe_id: int) -> bool:
     return db.query(models.Favorites).filter(
         models.Favorites.user_id == user_id,
         models.Favorites.recipe_id == recipe_id

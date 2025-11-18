@@ -8,7 +8,7 @@ from backend.routes.users import get_current_user
 from huggingface_hub import InferenceClient
 import os, json
 from dotenv import load_dotenv
-from backend.routes.favorites import is_favourite_recipe
+from backend.routes.favorites import is_favorite_recipe
 
 from pydantic import BaseModel
 
@@ -66,7 +66,7 @@ def list_recipes(
     response = []
     for r in recipes:
         item = schemas.RecipeResponse.model_validate(r).model_dump()
-        item["is_favourite"] = is_favourite_recipe(db, user.id, r.id)
+        item["is_favorite"] = is_favorite_recipe(db, user.id, r.id)
         response.append(item)
 
     return {
@@ -85,7 +85,7 @@ def get_recipe(recipe_id: int, db: Session = Depends(get_db), user=Depends(get_c
         raise HTTPException(status_code=404, detail="Recipe not found")
 
     data = schemas.RecipeResponse.model_validate(recipe).model_dump()
-    data["is_favourite"] = is_favourite_recipe(db, user.id, recipe_id)
+    data["is_favorite"] = is_favorite_recipe(db, user.id, recipe_id)
     return data
 
 
@@ -144,7 +144,7 @@ def search_recipes(
     response = []
     for r in results:
         item = schemas.RecipeResponse.model_validate(r).model_dump()
-        item["is_favourite"] = is_favourite_recipe(db, user.id, r.id)
+        item["is_favorite"] = is_favorite_recipe(db, user.id, r.id)
         response.append(item)
 
     return {

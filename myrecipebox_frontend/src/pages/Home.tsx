@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { listRecipes, searchRecipes, addFavorite, removeFavorite } from "../api";
 import { useNavigate } from "react-router-dom";
+import HeaderTabs from "../components/HeaderTabs";
+
 
 export default function Home() {
   const [recipes, setRecipes] = useState<any[]>([]);
@@ -92,6 +94,7 @@ export default function Home() {
 
   return (
     <div>
+      <HeaderTabs />
       <h1>Discover your next meal</h1>
       <p>Explore thousands of recipes from around the world.</p>
 
@@ -153,6 +156,7 @@ export default function Home() {
             />
 
             <h3 style={{ marginTop: 10 }}>{recipe.title}</h3>
+            {/* <p>{recipe.is_favorite ? "true":"false"}</p> */}
           </div>
         ))}
       </div>
