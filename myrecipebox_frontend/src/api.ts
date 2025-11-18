@@ -55,7 +55,12 @@ export async function fetchMe(token: string) {
 
 // List recipes
 export async function listRecipes(page_number: number, page_size: number) {
-  const res = await fetch(`${API_URL}/recipes/?page=${page_number}&page_size=${page_size}`);
+  const token = localStorage.getItem("access_token");
+  const res = await fetch(`${API_URL}/recipes/?page=${page_number}&page_size=${page_size}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
 
   if (!res.ok) {
     let err;
@@ -66,10 +71,29 @@ export async function listRecipes(page_number: number, page_size: number) {
   return res.json();
 }
 
+// Get recipe by id
+export async function getRecipeById(id: number | string) {
+  const token = localStorage.getItem("access_token");
+  const res = await fetch(`${API_URL}/recipes/id/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  if (!res.ok) throw new Error("Failed to load recipe");
+  return res.json();
+}
+
+
 // Search recipes by title
 export async function searchRecipes(q: string, page_number: number, page_size: number) {
+  const token = localStorage.getItem("access_token");
+
   const url = `${API_URL}/recipes/search?q=${encodeURIComponent(q)}&page=${page_number}&page_size=${page_size}`;
-  const res = await fetch(url);
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
 
   if (!res.ok) {
     let err;
@@ -78,4 +102,56 @@ export async function searchRecipes(q: string, page_number: number, page_size: n
   }
 
   return res.json();
+}
+
+//Get the user favourites
+export async function getFavorites() {
+  const token = localStorage.getItem("access_token");
+
+  const res = await fetch(`${API_URL}/favorites`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.detail || "Failed to load favorites");
+  }
+
+  return res.json();
+}
+
+
+// Adding or removing a recipe as a favourite
+export async function addFavorite(recipeId: number) {
+  const token = localStorage.getItem("access_token");
+
+  const res = await fetch(`${API_URL}/favorites/${recipeId}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.detail || "Failed to add favorite");
+  }
+}
+
+export async function removeFavorite(recipeId: number) {
+  const token = localStorage.getItem("access_token");
+
+  const res = await fetch(`${API_URL}/favorites/${recipeId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.detail || "Failed to remove favorite");
+  }
 }

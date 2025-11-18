@@ -1,0 +1,85 @@
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getRecipeById, addFavorite, removeFavorite } from "../api";
+
+export default function RecipeDetails() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [recipe, setRecipe] = useState<any>(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
+
+  useEffect(() => {
+    async function fetchRecipe() {
+      try {
+        const data = await getRecipeById(id!);
+        setRecipe(data);
+        setIsFavorite(data.is_favorite ?? false);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchRecipe();
+  }, [id]);
+
+  async function toggleFavorite() {
+    try {
+      if (isFavorite) {
+        await removeFavorite(recipe.id);
+        setIsFavorite(false);
+      } else {
+        await addFavorite(recipe.id);
+        setIsFavorite(true);
+      }
+    } catch (err: any) {
+      alert(err.message || "Failed to update favorite");
+    }
+  }
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
+
+  return (
+    <div>
+      <h1>{recipe.title}</h1>
+
+      <button
+        onClick={toggleFavorite}
+        style={{
+          marginBottom: 20,
+          fontSize: 20,
+          cursor: "pointer",
+          background: "none",
+          border: "none",
+        }}
+      >
+        {isFavorite ? "❤️ Remove from Favorites" : "🤍 Add to Favorites"}
+      </button>
+
+      <img
+        src={`http://127.0.0.1:8008${recipe.image_url}`}
+        alt={recipe.title}
+        style={{ width: "400px", borderRadius: 10 }}
+      />
+
+      <h2>Ingredients</h2>
+      <ul>
+        {recipe.ingredients.map((item: string, i: number) => (
+          <li key={i}>{item}</li>
+        ))}
+      </ul>
+
+      <h2>Steps</h2>
+      <p style={{ whiteSpace: "pre-wrap" }}>{recipe.steps}</p>
+
+      <p><b>Created by:</b> {recipe.created_by ?? "System"}</p>
+
+      <button onClick={() => navigate(-1)}>Back</button>
+    </div>
+  );
+}

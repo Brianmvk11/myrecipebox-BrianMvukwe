@@ -8,6 +8,7 @@ from backend.routes.users import get_current_user
 from huggingface_hub import InferenceClient
 import os, json
 from dotenv import load_dotenv
+from backend.routes.favorites import is_favourite_recipe
 
 from pydantic import BaseModel
 
@@ -47,7 +48,8 @@ def create(recipe: schemas.RecipeCreate,
 def list_recipes(
     page: int = 1,        # page number (1-based)
     page_size: int = 10,  # items per page
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
     # Calculate offset
     skip = (page - 1) * page_size
@@ -61,25 +63,34 @@ def list_recipes(
 
     total = db.query(models.Recipes).count()
 
+    response = []
+    for r in recipes:
+        item = schemas.RecipeResponse.model_validate(r).model_dump()
+        item["is_favourite"] = is_favourite_recipe(db, user.id, r.id)
+        response.append(item)
+
     return {
         "page": page,
         "page_size": page_size,
         "total": total,
         "total_pages": (total + page_size - 1) // page_size,
-        "recipes": [schemas.RecipeResponse.model_validate(r).model_dump() for r in recipes],
+        "recipes": response,
     }
 
 # Get Single Recipe
-@router.get("/{recipe_id}")
-def get_recipe(recipe_id: int, db: Session = Depends(get_db)):
+@router.get("/id/{recipe_id}")
+def get_recipe(recipe_id: int, db: Session = Depends(get_db), user=Depends(get_current_user)):
     recipe = db.query(models.Recipes).filter(models.Recipes.id == recipe_id).first()
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
-    return recipe
+
+    data = schemas.RecipeResponse.model_validate(recipe).model_dump()
+    data["is_favourite"] = is_favourite_recipe(db, user.id, recipe_id)
+    return data
 
 
 # Update Recipe
-@router.put("/{recipe_id}")
+@router.put("/id/{recipe_id}")
 def update(recipe_id: int, update_data: schemas.RecipeUpdate, db: Session = Depends(get_db), user=Depends(get_current_user)):
     recipe = db.query(models.Recipes).filter(models.Recipes.id == recipe_id).first()
 
@@ -98,7 +109,7 @@ def update(recipe_id: int, update_data: schemas.RecipeUpdate, db: Session = Depe
 
 
 # Delete Recipe
-@router.delete("/{recipe_id}")
+@router.delete("/id/{recipe_id}")
 def delete(recipe_id: int, db: Session = Depends(get_db), user=Depends(get_current_user)):
     recipe = db.query(models.Recipes).filter(models.Recipes.id == recipe_id).first()
 
@@ -118,7 +129,8 @@ def search_recipes(
     q: str,
     page: int = 1,
     page_size: int = 10,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
     skip = (page - 1) * page_size
 
@@ -129,13 +141,21 @@ def search_recipes(
     results = query.offset(skip).limit(page_size).all()
     total = query.count()
 
+    response = []
+    for r in results:
+        item = schemas.RecipeResponse.model_validate(r).model_dump()
+        item["is_favourite"] = is_favourite_recipe(db, user.id, r.id)
+        response.append(item)
+
     return {
         "query": q,
         "page": page,
         "page_size": page_size,
         "total": total,
-        "recipes": results,
+        "total_pages": (total + page_size - 1) // page_size,
+        "recipes": response,
     }
+
 
 # AI ingredients creation
 @router.post("/suggest-recipes")

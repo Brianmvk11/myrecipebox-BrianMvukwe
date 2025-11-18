@@ -11,6 +11,7 @@ Favorites
 '''
 
 from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
 from backend.database import Base
 from sqlalchemy.dialects.postgresql import ARRAY
 
@@ -36,5 +37,8 @@ class Favorites(Base):
     __tablename__ = "favorites"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
-    recipe_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    recipe_id = Column(Integer, ForeignKey("recipes.id", ondelete="CASCADE"), nullable=False)
+
+    user = relationship("Users", backref="favorites")
+    recipe = relationship("Recipes", backref="favorited_by")

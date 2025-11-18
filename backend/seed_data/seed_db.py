@@ -21,7 +21,7 @@ def seed_recipes():
                 title=row["Title"],
                 ingredients=ingredients_list,
                 steps=row["Instructions"],
-                image_url=os.path.join('backend','data','Food_Images',row["Image_Name"])
+                image_url=f"/images/{row['Image_Name']}.jpg"
             )
             db.add(recipe)
         db.commit()

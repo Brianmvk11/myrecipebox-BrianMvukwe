@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { listRecipes, searchRecipes } from "../api";
+import { listRecipes, searchRecipes, addFavorite, removeFavorite } from "../api";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [recipes, setRecipes] = useState<any[]>([]);
@@ -8,15 +9,14 @@ export default function Home() {
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  // search state
   const [query, setQuery] = useState<string>("");
   const [isSearching, setIsSearching] = useState<boolean>(false);
 
   const PAGE_SIZE = 6;
+  const navigate = useNavigate();
 
   async function fetchList(pageNumber: number) {
     setLoading(true);
-    setError("");
     try {
       const data = await listRecipes(pageNumber, PAGE_SIZE);
       setRecipes(data.recipes ?? []);
@@ -31,13 +31,11 @@ export default function Home() {
 
   async function fetchSearch(q: string, pageNumber: number) {
     setLoading(true);
-    setError("");
     try {
       const data = await searchRecipes(q, pageNumber, PAGE_SIZE);
       setRecipes(data.recipes ?? []);
-      const total = data.total ?? 0;
-      setTotalPages(Math.max(1, Math.ceil(total / PAGE_SIZE)));
-      setPage(data.page ?? pageNumber);
+      setTotalPages(Math.ceil((data.total ?? 0) / PAGE_SIZE));
+      setPage(data.page);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -49,20 +47,6 @@ export default function Home() {
     fetchList(1);
   }, []);
 
-  // pagination
-  function nextPage() {
-    if (page >= totalPages) return;
-    const next = page + 1;
-    isSearching ? fetchSearch(query, next) : fetchList(next);
-  }
-
-  function prevPage() {
-    if (page <= 1) return;
-    const prev = page - 1;
-    isSearching ? fetchSearch(query, prev) : fetchList(prev);
-  }
-
-  // triggered ONLY on button press
   function onSearchClick() {
     if (!query.trim()) {
       setIsSearching(false);
@@ -73,10 +57,37 @@ export default function Home() {
     fetchSearch(query.trim(), 1);
   }
 
-  function onClearSearch() {
-    setQuery("");
-    setIsSearching(false);
-    fetchList(1);
+  function nextPage() {
+    if (page < totalPages) {
+      isSearching ? fetchSearch(query, page + 1) : fetchList(page + 1);
+    }
+  }
+
+  function prevPage() {
+    if (page > 1) {
+      isSearching ? fetchSearch(query, page - 1) : fetchList(page - 1);
+    }
+  }
+
+  async function toggleFavorite(e: React.MouseEvent, recipeId: number) {
+    e.stopPropagation();
+
+    setRecipes((prev) =>
+      prev.map((r) =>
+        r.id === recipeId ? { ...r, is_favorite: !r.is_favorite } : r
+      )
+    );
+
+    try {
+      const recipe = recipes.find((r) => r.id === recipeId);
+      if (recipe.is_favorite) {
+        await removeFavorite(recipeId);
+      } else {
+        await addFavorite(recipeId);
+      }
+    } catch (err: any) {
+      alert(err?.message || "Failed to update favorite");
+    }
   }
 
   return (
@@ -84,7 +95,7 @@ export default function Home() {
       <h1>Discover your next meal</h1>
       <p>Explore thousands of recipes from around the world.</p>
 
-      {/* Search Bar */}
+      {/* Search */}
       <div style={{ marginTop: 12, marginBottom: 12, display: "flex", gap: 8 }}>
         <input
           type="text"
@@ -93,48 +104,70 @@ export default function Home() {
           onChange={(e) => setQuery(e.target.value)}
         />
         <button onClick={onSearchClick}>Search</button>
-        <button onClick={onClearSearch} disabled={!isSearching && !query}>Clear</button>
       </div>
 
       {loading && <p>Loading...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {/* Recipes */}
-      <div>
-        {recipes.length === 0 && !loading ? (
-          <p>No recipes found.</p>
-        ) : (
-          recipes.map((recipe: any) => (
-            <div key={recipe.id} style={{ padding: 12, marginBottom: 20, borderBottom: "1px solid #ccc" }}>
-              <h2>{recipe.title}</h2>
-
-              {recipe.image_url && (
-                <img
-                  src={recipe.image_url}
-                  alt={recipe.title}
-                  style={{ width: 200, borderRadius: 10 }}
-                />
-              )}
-
-              <p><b>Ingredients:</b> {recipe.ingredients.join(", ")}</p>
-
-              {/* Steps */}
-              <div style={{ marginTop: 10 }}>
-                <b>Steps:</b>
-                <pre style={{ whiteSpace: "pre-wrap" }}>{recipe.steps}</pre>
-              </div>
-
-              <p><b>Created by:</b> {recipe.created_by ?? "System"}</p>
+      {/* Card Grid */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+          gap: 20,
+          marginTop: 20,
+        }}
+      >
+        {recipes.map((recipe) => (
+          <div
+            key={recipe.id}
+            onClick={() => navigate(`/recipe/${recipe.id}`)}
+            style={{
+              cursor: "pointer",
+              border: "1px solid #ddd",
+              padding: 10,
+              borderRadius: 10,
+              boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+              position: "relative",
+            }}
+          >
+            {/* Heart icon */}
+            <div
+              onClick={(e) => toggleFavorite(e, recipe.id)}
+              style={{
+                position: "absolute",
+                top: 10,
+                left: 10,
+                fontSize: 22,
+                cursor: "pointer",
+                userSelect: "none",
+              }}
+            >
+              {recipe.is_favorite ? "❤️" : "🤍"}
             </div>
-          ))
-        )}
+
+            <img
+              src={`http://127.0.0.1:8008${recipe.image_url}`}
+              alt={recipe.title}
+              style={{ width: "100%", borderRadius: 10 }}
+            />
+
+            <h3 style={{ marginTop: 10 }}>{recipe.title}</h3>
+          </div>
+        ))}
       </div>
 
       {/* Pagination */}
-      <div style={{ marginTop: 20, display: "flex", gap: 10, alignItems: "center" }}>
-        <button onClick={prevPage} disabled={page === 1 || loading}>◀ Prev</button>
-        <span>Page {page} of {totalPages}</span>
-        <button onClick={nextPage} disabled={page === totalPages || loading}>Next ▶</button>
+      <div style={{ marginTop: 20, display: "flex", gap: 10 }}>
+        <button onClick={prevPage} disabled={page === 1}>
+          Prev
+        </button>
+        <span>
+          Page {page} of {totalPages}
+        </span>
+        <button onClick={nextPage} disabled={page === totalPages}>
+          Next
+        </button>
       </div>
     </div>
   );

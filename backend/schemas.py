@@ -30,6 +30,7 @@ class RecipeUpdate(BaseModel):
 class RecipeResponse(RecipeBase):
     id: int
     created_by: Optional[int]
+    is_favourite: bool = False
     
     model_config = {
         "from_attributes": True

@@ -4,8 +4,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.routes import users, recipes, favorites
 from backend import models
 from backend.database import engine
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="MyRecipeBox API")
+
+app.mount(
+    "/images",
+    StaticFiles(directory="backend/data/Food_Images/Food_Images"),
+    name="images"
+)
 
 origins = [
     "http://localhost:5173",

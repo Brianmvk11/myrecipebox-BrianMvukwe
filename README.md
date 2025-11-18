@@ -115,7 +115,13 @@ You can find the data in a folder "data"
 
 4. Rename the folder from "Food Images" to "Food_Images"
 
-5. Populate the database with the data: (run from root)
+5. Rename the other folder inside this folder from "Food Images" to "Food_Images"
+You should have the structure:
+data
+|-->Food_Images
+---|-->Food_Images
+
+6. Populate the database with the data: (run from root)
 ``` 
 python -m backend.seed_data.seed_db
 ```
