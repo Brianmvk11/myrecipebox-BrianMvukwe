@@ -14,7 +14,7 @@ class UserCreate(BaseModel):
 
 class RecipeBase(BaseModel):
     title: str
-    ingredients: List[str]
+    ingredients: List[str] = None
     steps: str
     image_url: Optional[str] = None
 
@@ -22,14 +22,15 @@ class RecipeCreate(RecipeBase):
     pass
 
 class RecipeUpdate(BaseModel):
-    title: Optional[str]
-    ingredients: Optional[List[str]]
-    steps: Optional[str]
-    image_url: Optional[str]
+    title: Optional[str] = None
+    ingredients: Optional[List[str]] = None
+    steps: Optional[str] = None
+    image_url: Optional[str] = None
 
 class RecipeResponse(RecipeBase):
     id: int
-    created_by: Optional[int]
+    created_by: Optional[int] = None
+    created_by_name: Optional[str] = None
     is_favourite: bool = False
     
     model_config = {
@@ -38,7 +39,7 @@ class RecipeResponse(RecipeBase):
 
 class SaveRecipeRequest(BaseModel):
     title: str
-    ingredients: list[str]
+    ingredients: list[str] = None
     steps: str
     image_url: str | None = None
     created_by: int | None = None

@@ -155,3 +155,38 @@ export async function removeFavorite(recipeId: number) {
     throw new Error(data.detail || "Failed to remove favorite");
   }
 }
+
+// Creating a Recipe
+export async function createRecipe(data: {
+  title: string;
+  ingredients: string[];
+  steps: string;
+  file?: File | null;
+}) {
+  const token = localStorage.getItem("access_token");
+
+  const form = new FormData();
+  form.append("title", data.title);
+  data.ingredients.forEach((ing) => form.append("ingredients", ing));
+  form.append("steps", data.steps);
+
+  if (data.file) {
+    form.append("file", data.file);
+  }
+
+  const res = await fetch(`${API_URL}/recipes/`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    body: form,
+  });
+
+  if (!res.ok) {
+    let err;
+    try { err = await res.json(); } catch { err = null; }
+    throw new Error(err?.detail || "Failed to create recipe");
+  }
+
+  return res.json();
+}

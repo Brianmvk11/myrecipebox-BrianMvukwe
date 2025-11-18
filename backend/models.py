@@ -23,6 +23,8 @@ class Users(Base):
     email = Column(String, unique=True, nullable=False, index=True)
     password_hash = Column(String, nullable=False)
 
+    recipes = relationship("Recipes", back_populates="creator")
+
 class Recipes(Base):
     __tablename__ = "recipes"
 
@@ -32,6 +34,8 @@ class Recipes(Base):
     steps = Column(String, nullable=False)
     image_url = Column(String, nullable=True)
     created_by = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True) #If null then it data that was available and not added by the user
+
+    creator = relationship("Users", back_populates="recipes")
 
 class Favorites(Base):
     __tablename__ = "favorites"

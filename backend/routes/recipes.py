@@ -1,6 +1,6 @@
 # app/routes/recipes.py
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from backend import models, schemas
 from backend.database import get_db
@@ -9,6 +9,7 @@ from huggingface_hub import InferenceClient
 import os, json
 from dotenv import load_dotenv
 from backend.routes.favorites import is_favorite_recipe
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -26,20 +27,43 @@ HF_API_TOKEN = os.getenv("HF_API_TOKEN")
 client = InferenceClient(api_key=HF_API_TOKEN)
 
 # Create Recipe
-@router.post("/")
-def create(recipe: schemas.RecipeCreate, 
-           db: Session = Depends(get_db), 
-           user=Depends(get_current_user)):
+@router.post("/", response_model=schemas.RecipeResponse)
+def create(title: str = Form(...),
+            ingredients: list[str] = Form(...),
+            steps: str = Form(...),
+            file: UploadFile = File(None),
+            db: Session = Depends(get_db),
+            user = Depends(get_current_user)):
+    #saving the image if one was uploaded
+    # --- Save optional uploaded file ---
+    if file:
+        upload_dir = os.path.join('backend', 'data', 'Food_Images', 'Food_Images')
+        upload_path = os.path.join(upload_dir, file.filename)
+        with open(upload_path, "wb") as buffer:
+            buffer.write(file.file.read())
+
     new_recipe = models.Recipes(
-        title=recipe.title,
-        ingredients=recipe.ingredients,
-        steps=recipe.steps,
-        image_url=recipe.image_url,
+        title=title,
+        ingredients=ingredients,
+        steps=steps,
+        image_url= "/images/"+file.filename,#recipe.image_url,
         created_by=user.id
     )
+
     db.add(new_recipe)
     db.commit()
     db.refresh(new_recipe)
+
+    #Add it to favorites
+    favorite = models.Favorites(
+        user_id = user.id,
+        recipe_id = new_recipe.id
+    )
+
+    db.add(favorite)
+    db.commit()
+    db.refresh(favorite)
+
     return new_recipe
 
 
@@ -86,6 +110,11 @@ def get_recipe(recipe_id: int, db: Session = Depends(get_db), user=Depends(get_c
 
     data = schemas.RecipeResponse.model_validate(recipe).model_dump()
     data["is_favorite"] = is_favorite_recipe(db, user.id, recipe_id)
+    if not recipe.creator:
+        data["created_by_name"] = None
+    else:
+        
+        data["created_by_name"] = recipe.creator.name
     return data
 
 

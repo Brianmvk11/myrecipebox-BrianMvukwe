@@ -77,7 +77,7 @@ export default function RecipeDetails() {
       <h2>Steps</h2>
       <p style={{ whiteSpace: "pre-wrap" }}>{recipe.steps}</p>
 
-      <p><b>Created by:</b> {recipe.created_by ?? "System"}</p>
+      <p><b>Created by:</b> {recipe.created_by_name ?? "System"}</p>
 
       <button onClick={() => navigate(-1)}>Back</button>
     </div>
