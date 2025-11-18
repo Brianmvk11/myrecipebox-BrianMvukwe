@@ -34,6 +34,16 @@ def create(title: str = Form(...),
             file: UploadFile = File(None),
             db: Session = Depends(get_db),
             user = Depends(get_current_user)):
+    # Prevent duplicates
+    existing = (
+        db.query(models.Recipes)
+        .filter(models.Recipes.title == title)
+        .first()
+    )
+
+    if existing:
+        raise HTTPException(400, detail="Recipe already saved")
+    
     #saving the image if one was uploaded
     # --- Save optional uploaded file ---
     if file:
@@ -54,15 +64,15 @@ def create(title: str = Form(...),
     db.commit()
     db.refresh(new_recipe)
 
-    #Add it to favorites
-    favorite = models.Favorites(
-        user_id = user.id,
-        recipe_id = new_recipe.id
-    )
+    # #Add it to favorites
+    # favorite = models.Favorites(
+    #     user_id = user.id,
+    #     recipe_id = new_recipe.id
+    # )
 
-    db.add(favorite)
-    db.commit()
-    db.refresh(favorite)
+    # db.add(favorite)
+    # db.commit()
+    # db.refresh(favorite)
 
     return new_recipe
 
@@ -216,7 +226,7 @@ def suggest(req: SuggestRequest):
 
     raw = completion.choices[0].message["content"]
 
-    print(raw)
+    # print(raw)
     # Parse JSON safely
     try:
         recipes = json.loads(raw)
@@ -225,30 +235,30 @@ def suggest(req: SuggestRequest):
 
     return {"recipes": recipes}
 
-# if AI generated receipe needs to be saved.
-@router.post("/save-recipe")
-def save_recipe(req: schemas.SaveRecipeRequest, db: Session = Depends(get_db)):
-    # Prevent duplicates
-    existing = (
-        db.query(models.Recipes)
-        .filter(models.Recipes.title == req.title)
-        .first()
-    )
+# # if AI generated receipe needs to be saved.
+# @router.post("/save-recipe")
+# def save_recipe(req: schemas.SaveRecipeRequest, db: Session = Depends(get_db)):
+#     # Prevent duplicates
+#     existing = (
+#         db.query(models.Recipes)
+#         .filter(models.Recipes.title == req.title)
+#         .first()
+#     )
 
-    if existing:
-        raise HTTPException(400, detail="Recipe already saved")
+#     if existing:
+#         raise HTTPException(400, detail="Recipe already saved")
 
-    recipe = models.Recipes(
-        title=req.title,
-        ingredients=req.ingredients,
-        steps=req.steps,
-        image_url=req.image_url,
-        created_by=req.created_by,
-    )
+#     recipe = models.Recipes(
+#         title=req.title,
+#         ingredients=req.ingredients,
+#         steps=req.steps,
+#         image_url=req.image_url,
+#         created_by=req.created_by,
+#     )
 
-    db.add(recipe)
-    db.commit()
-    db.refresh(recipe)
+#     db.add(recipe)
+#     db.commit()
+#     db.refresh(recipe)
 
-    return {"message": "Recipe saved", "recipe": recipe}
+#     return {"message": "Recipe saved", "recipe": recipe}
 

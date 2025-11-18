@@ -71,6 +71,24 @@ export async function listRecipes(page_number: number, page_size: number) {
   return res.json();
 }
 
+// Get favorite recipes
+export async function listFavorites(page_number: number, page_size: number) {
+  const token = localStorage.getItem("access_token");
+  const res = await fetch(`${API_URL}/favorites/?page=${page_number}&page_size=${page_size}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (!res.ok) {
+    let err;
+    try { err = await res.json(); } catch { err = null; }
+    throw new Error(err?.detail || "Unable to get list of favorites");
+  }
+
+  return res.json();
+}
+
 // Get recipe by id
 export async function getRecipeById(id: number | string) {
   const token = localStorage.getItem("access_token");

@@ -2,9 +2,10 @@
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from backend import models
 from backend.database import get_db
 from backend.routes.users import get_current_user
+from backend import models, schemas
+
 
 router = APIRouter(prefix="/favorites", tags=["favorites"])
 
@@ -39,15 +40,45 @@ def remove_favorite(recipe_id: int, db: Session = Depends(get_db), user=Depends(
 
 
 # Get User Favorites
-@router.get("/")
-def get_favorites(db: Session = Depends(get_db), user=Depends(get_current_user)):
-    recipes = (
+@router.get("/", response_model=dict)
+def get_favorites(
+    page: int = 1,
+    page_size: int = 10,
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    skip = (page - 1) * page_size
+
+    # Get favorites for the logged-in user
+    fav_query = (
         db.query(models.Recipes)
         .join(models.Favorites, models.Recipes.id == models.Favorites.recipe_id)
         .filter(models.Favorites.user_id == user.id)
+    )
+
+    total = fav_query.count()
+
+    recipes = (
+        fav_query
+        .offset(skip)
+        .limit(page_size)
         .all()
     )
-    return recipes
+
+    response = []
+    for r in recipes:
+        item = schemas.RecipeResponse.model_validate(r).model_dump()
+        item["is_favorite"] = True  # Always true in this endpoint
+        response.append(item)
+
+    return {
+        "page": page,
+        "page_size": page_size,
+        "total": total,
+        "total_pages": (total + page_size - 1) // page_size,
+        "recipes": response,
+    }
+
 
 # Is this recipe a favorite?
 def is_favorite_recipe(db: Session, user_id: int, recipe_id: int) -> bool:
