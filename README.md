@@ -152,3 +152,7 @@ npm install
 ```
 npm run dev
 ```
+
+imporovements:
+- Forgot password
+- change password
