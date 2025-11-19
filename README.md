@@ -1,163 +1,238 @@
-# Installation and Setup
+# MyRecipeBox — Your AI Cooking Companion
+
+A full-stack web application where users can browse recipes, manage favourites, and generate AI-powered recipe suggestions based on ingredients they have at home.
+
+## Tech Stack
+### Frontend
+
+* React + Vite
+* TypeScript
+* Axios (API calls)
+
+### Backend
+
+* FastAPI
+* SQLAlchemy ORM
+* Alembic (migrations)
+* Pydantic
+* Uvicorn (server)
+
+### Database
+
+* PostgreSQL
+
+### AI Integration
+
+* HuggingFace Inference API
+
+### Other
+
+* python-venv
+* Node.js & npm
+* Kaggle API (dataset download)
+
+## Features
+
+* Secure user registration + login
+* Browse and search recipes
+* Save/remove favourite recipes
+* Add your own recipes
+* AI-powered recipe suggestions based on provided ingredients
+* Seeded recipe database from Kaggle dataset
+
+Security Considerations
+
+* Environment variables managed through .env (never committed)
+* Passwords are hashed (no plain-text storage)
+* API keys kept out of source control
+* Auth implemented via JWT
+* Example .env.example included for developers
+
+## Project Structure (High-Level)
+myrecipebox-brianmvukwe/
+│── alembic/
+│── backend/
+|   └── data (created after seeding)
+|       └── Food_Images
+|           └── Food_Images
+|       └── recipes.csv
+|   └── routes
+│       ├── favorite.py
+│       ├── recipes.py
+|       └── ...
+|   ├── seed_data
+|       ├── downloaded_dataset.py
+|       └── ...
+|   ├── database.py
+|   ├── main.py
+|   ├── models.py
+|   └── schemas.py
+│
+│── myrecipebox_frontend/
+│   ├── public/
+│   ├── src/
+│   ├── package.json
+│   └── vite.config.ts
+│
+│── requirements.txt
+│── alembic.ini
+│── .env.example
+└── README.md
+
+## Installation & Setup
+
+Follow these steps to run the application locally.
 
 1. Clone the Repository
 ```
-git clone https://github.com/Brianmvk11/MyRecipeBox-Your-AI-Cooking-Companion.git
-cd MyRecipeBox-Your-AI-Cooking-Companion
+git clone https://github.com/Brianmvk11/myrecipebox-BrianMvukwe.git
+cd myrecipebox-BrianMvukwe
 ```
 
-2. Set up a Virtual Environment
-
-Windows (PowerShell):
+2. Backend Setup
+2.1 Create & Activate a Virtual Environment
+Windows (PowerShell)
 ```
 python -m venv venv
-venv\Scripts\Activate
+venv\Scripts\activate
 ```
 
-macOS / Linux:
+macOS / Linux
 ```
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-3. Install Dependencies
+2.2 Install Python Dependencies
 ```
 pip install -r requirements.txt
 ```
 
-4. Install and Set Up PostgreSQL
-```
-Download and install PostgreSQL from the official site:
+3. PostgreSQL Setup
+Install PostgreSQL
+
+Download and install from:
 https://www.postgresql.org/download/
+
+Create Database
+
+You may use pgAdmin or psql.
+
+Using psql:
 ```
-
-You can use either of the following options to create your database:
-
-Option 1: Using pgAdmin (GUI)
-
-Open pgAdmin.
-
-Create a new database (e.g., recipebox_db).
-
-Note your username and password (you’ll need them for your .env file).
-
-Option 2: Using psql (Terminal)
-
-Open your terminal and start the PostgreSQL shell:
-
 psql -U postgres
-
-
-Create the database:
-
 CREATE DATABASE recipebox_db;
-
-
-Exit psql:
-
 \q
-
-5. Set Up Environment Variables
-
-NOTE: An example of how your .env file should look can be found in the file ".env.example"
-
-Create a .env file in the root directory and add the following:
-
-DATABASE_URL=postgresql://<username>:<password>@localhost:5432/recipebox_db
-SECRET_KEY=your_secret_key_here
-
-* <username>: The user name for the database, usually "postgres"
-* <password>: The password related to the created database
-* "your_secret_key_here" can be any random string of characters
-
-6. Create a hugging face API key:
-* Start by creating a hugging face profile (if you don't already have one) and logging in
-* Navigate to create an API key.
-To create an access token, go to your settings, then click on the Access Tokens tab. Click on the New token button to create a new User Access Token.
-* Copy that API token and paste it in your .env file.
-
-
-7. Run Migrations
-
-Autogenerate migrations from your SQLAlchemy models:
 ```
-alembic revision --autogenerate -m "create users, recipes and favorites tables"
+
+4. Environment Variables
+
+A template file .env.example is included.
+
+Create your .env file in the project root
+
+5. Hugging Face API Setup
+
+* Create or log in to your HuggingFace account
+* Go to Settings → Access Tokens
+* Generate a new User Access Token
+* Add the token to your .env
+
+6. Run Database Migrations
 ```
+alembic revision --autogenerate -m "create initial tables"
 alembic upgrade head
+```
 
-8. To run the Fastapi backend
+7. Run the FastAPI Backend
 
-Inside the root folder
+From the root folder:
 ```
 uvicorn backend.main:app --reload --host 0.0.0.0 --port 8008
 ```
-Access the FastAPI docs at: http://127.0.0.1:8008/docs 
 
-9. Start the Application 
-Inside the root folder
-```
-python -m backend.main
-```
 
-# Seed the database:
-1. To seed the database, you need a Kaggle API key. Follow these steps to create one (Follow thw steps under the heading "Installation & Authentication"):
-https://www.kaggle.com/discussions/getting-started/524433 
+API docs are available at:
+http://127.0.0.1:8008/docs
 
-2. Download the data on to your machine:
-while in the root folder: (This can take up to 2 min) (run this only once)
+## Seeding the Database (Optional but Recommended)
+Step 1: Install Kaggle API
+
+Follow instructions under "Installation & Authentication" here:
+https://www.kaggle.com/discussions/getting-started/524433
+
+Step 2: Download Dataset
+
+From the root folder:
 ```
 python -m backend.seed_data.download_dataset
 ```
 
-You can find the data in a folder "data"
+After download, structure should look like:
+data/
+│── recipes.csv
+│── Food_Images/
+    │── Food_Images/
 
-3. Rename the csv file in the folder "data" from "Food Ingredients and Recipe Dataset with Image Name Mapping.csv" to "recipes.csv"
 
-4. Rename the folder from "Food Images" to "Food_Images"
+Rename files/folders as needed:
 
-5. Rename the other folder inside this folder from "Food Images" to "Food_Images"
-You should have the structure:
-data
-|-->Food_Images
----|-->Food_Images
+* Rename CSV:
+    Food Ingredients and Recipe Dataset with Image Name Mapping.csv → recipes.csv
 
-6. Populate the database with the data: (run from root)
-``` 
+* Rename folders
+    Food Images → Food_Images
+    Subfolder also → Food_Images
+
+Step 3: Populate the Database
+```
 python -m backend.seed_data.seed_db
 ```
 
 
-Seed database used: https://www.kaggle.com/datasets/pes12017000148/food-ingredients-and-recipe-dataset-with-images
+Dataset source:
+https://www.kaggle.com/datasets/pes12017000148/food-ingredients-and-recipe-dataset-with-images
 
-* title: Title of the dish
-* ingredients: The ingredients and amount (Unorganized)
-* Instructions: Has the recipe instructions to be followed to recreate the dish
-* Image_Name: Has the name of the image as stored in the Food Images zipped folder
-* Cleaned_Ingredients: Contains the ingredients after being processed and cleaned
-
-# Running the front-end
-1. Make sure that you have Node.js installed by running:
+## Running the Frontend
+1. Confirm Node Installation
 ```
 node -v
 npm -v
 ```
 
-2. Change directory into the frontend folder and install packages:
+2. Install Dependencies
 ```
 cd myrecipebox_frontend
 npm install
 ```
 
-3. run the project
+3. Start Vite Dev Server (within the frontend folder)
 ```
 npm run dev
 ```
 
-imporovements:
-- Forgot password
-- change password
-- Format the steps
-- Add more fields for a recipe like:
-    - Time to prepare
-    - Serving
-    - Level of difficult to make recipe
+### Testing Instructions
+
+* Test user registration/login
+* Test adding & removing favourites
+* Test search functionality
+* Test AI recipe suggestion endpoint
+* Test creating a custom recipe
+
+### Assumptions & Trade-offs
+
+* Using HuggingFace API due to free tier availability
+* Images are loaded from the dataset rather than an S3 bucket (to keep everything local)
+* The project prioritizes functionality over styling (UI can be improved)
+
+### Improvements / Known Limitations
+
+* Add "Forgot Password"
+* Add "Change Password"
+* Improve formatting of recipe steps
+* Add more recipe metadata:
+* Prep time
+* Serving size
+* Difficulty level
+* Improve search relevance
+* Better mobile responsiveness
