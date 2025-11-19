@@ -1,4 +1,4 @@
-# MyRecipeBox — Your AI Cooking Companion
+# 🍽️ MyRecipeBox — Your AI Cooking Companion
 
 A full-stack web application where users can browse recipes, manage favourites, and generate AI-powered recipe suggestions based on ingredients they have at home.
 
@@ -40,7 +40,7 @@ A full-stack web application where users can browse recipes, manage favourites, 
 * AI-powered recipe suggestions based on provided ingredients
 * Seeded recipe database from Kaggle dataset
 
-Security Considerations
+## Security Considerations
 
 * Environment variables managed through .env (never committed)
 * Passwords are hashed (no plain-text storage)
@@ -48,36 +48,37 @@ Security Considerations
 * Auth implemented via JWT
 * Example .env.example included for developers
 
-## Project Structure (High-Level)
+### Project Structure (High-Level)
+```text
+
 myrecipebox-brianmvukwe/
-│── alembic/
-│── backend/
-|   └── data (created after seeding)
-|       └── Food_Images
-|           └── Food_Images
-|       └── recipes.csv
-|   └── routes
-│       ├── favorite.py
-│       ├── recipes.py
-|       └── ...
-|   ├── seed_data
-|       ├── downloaded_dataset.py
-|       └── ...
-|   ├── database.py
-|   ├── main.py
-|   ├── models.py
-|   └── schemas.py
-│
-│── myrecipebox_frontend/
-│   ├── public/
-│   ├── src/
-│   ├── package.json
-│   └── vite.config.ts
-│
-│── requirements.txt
-│── alembic.ini
-│── .env.example
+├── alembic/
+├── backend/
+│ ├── data/ # created after seeding
+│ │ ├── Food_Images/
+│ │ │ └── Food_Images/
+│ │ └── recipes.csv
+│ ├── routes/
+│ │ ├── favorite.py
+│ │ ├── recipes.py
+│ │ └── ...
+│ ├── seed_data/
+│ │ ├── downloaded_dataset.py
+│ │ └── ...
+│ ├── database.py
+│ ├── main.py
+│ ├── models.py
+│ └── schemas.py
+├── myrecipebox_frontend/
+│ ├── public/
+│ ├── src/
+│ ├── package.json
+│ └── vite.config.ts
+├── requirements.txt
+├── alembic.ini
+├── .env.example
 └── README.md
+```
 
 ## Installation & Setup
 
@@ -90,7 +91,8 @@ cd myrecipebox-BrianMvukwe
 ```
 
 2. Backend Setup
-2.1 Create & Activate a Virtual Environment
+
+##### Create & Activate a Virtual Environment
 Windows (PowerShell)
 ```
 python -m venv venv
@@ -103,7 +105,7 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-2.2 Install Python Dependencies
+##### Install Python Dependencies
 ```
 pip install -r requirements.txt
 ```
@@ -168,11 +170,13 @@ From the root folder:
 python -m backend.seed_data.download_dataset
 ```
 
+```text
 After download, structure should look like:
 data/
-│── recipes.csv
-│── Food_Images/
-    │── Food_Images/
+├── recipes.csv
+└── Food_Images/
+    └── Food_Images/
+```
 
 
 Rename files/folders as needed:
