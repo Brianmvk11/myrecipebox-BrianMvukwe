@@ -242,4 +242,4 @@ npm run dev
 * Better mobile responsiveness
 
 ### Video of app
-https://youtu.be/9MxzAxTGzh4 
+https://youtu.be/9MxzAxTGzh4  
