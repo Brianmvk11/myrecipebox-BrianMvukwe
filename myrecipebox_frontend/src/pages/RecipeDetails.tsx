@@ -9,7 +9,6 @@ export default function RecipeDetails() {
   const [recipe, setRecipe] = useState<any>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
   useEffect(() => {
@@ -24,6 +23,7 @@ export default function RecipeDetails() {
         setLoading(false);
       }
     }
+
     fetchRecipe();
   }, [id]);
 
@@ -45,41 +45,81 @@ export default function RecipeDetails() {
   if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
-    <div>
-      <h1>{recipe.title}</h1>
+    <div
+      style={{
+        maxWidth: 700,
+        margin: "0 auto",
+        padding: 20,
+        display: "flex",
+        flexDirection: "column",
+        gap: 20,
+      }}
+    >
+      {/* Title + Favorite */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h1 style={{ margin: 0 }}>{recipe.title}</h1>
 
-      <button
-        onClick={toggleFavorite}
-        style={{
-          marginBottom: 20,
-          fontSize: 20,
-          cursor: "pointer",
-          background: "none",
-          border: "none",
-        }}
-      >
-        {isFavorite ? "❤️ Remove from Favorites" : "🤍 Add to Favorites"}
-      </button>
+        <button
+          onClick={toggleFavorite}
+          style={{
+            fontSize: 28,
+            cursor: "pointer",
+            background: "none",
+            border: "none",
+            padding: 0,
+          }}
+        >
+          {isFavorite ? "❤️" : "🤍"}
+        </button>
+      </div>
 
+      {/* Image */}
       <img
         src={`http://127.0.0.1:8008${recipe.image_url}`}
         alt={recipe.title}
-        style={{ width: "400px", borderRadius: 10 }}
+        style={{
+          width: "100%",
+          maxHeight: 350,
+          objectFit: "cover",
+          borderRadius: 12,
+        }}
       />
 
-      <h2>Ingredients</h2>
-      <ul>
-        {recipe.ingredients.map((item: string, i: number) => (
-          <li key={i}>{item}</li>
-        ))}
-      </ul>
+      {/* Created By */}
+      <p style={{ fontStyle: "italic", color: "#555" }}>
+        <b>Created by:</b> {recipe.created_by_name ?? "System"}
+      </p>
 
-      <h2>Steps</h2>
-      <p style={{ whiteSpace: "pre-wrap" }}>{recipe.steps}</p>
+      {/* Ingredients */}
+      <div>
+        <h2>Ingredients</h2>
+        <ul>
+          {recipe.ingredients.map((item: string, i: number) => (
+            <li key={i}>{item}</li>
+          ))}
+        </ul>
+      </div>
 
-      <p><b>Created by:</b> {recipe.created_by_name ?? "System"}</p>
+      {/* Steps */}
+      <div>
+        <h2>Steps</h2>
+        <p style={{ whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{recipe.steps}</p>
+      </div>
 
-      <button onClick={() => navigate(-1)}>Back</button>
+      {/* Back button */}
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          padding: "8px 16px",
+          width: "fit-content",
+          borderRadius: 6,
+          cursor: "pointer",
+          background: "#eee",
+          border: "1px solid #ccc",
+        }}
+      >
+        ← Back
+      </button>
     </div>
   );
 }

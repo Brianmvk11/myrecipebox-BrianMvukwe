@@ -156,3 +156,8 @@ npm run dev
 imporovements:
 - Forgot password
 - change password
+- Format the steps
+- Add more fields for a recipe like:
+    - Time to prepare
+    - Serving
+    - Level of difficult to make recipe
