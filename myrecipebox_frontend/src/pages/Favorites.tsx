@@ -1,63 +1,47 @@
-import { useEffect, useState } from "react";
-import { listFavorites, addFavorite, removeFavorite } from "../api";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HeaderTabs from "../components/HeaderTabs";
+import { createRecipe } from "../api";
 
-export default function Favorites() {
-  const [recipes, setRecipes] = useState<any[]>([]);
-  const [page, setPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+export default function AddRecipe() {
+  const [title, setTitle] = useState("");
+  const [ingredients, setIngredients] = useState<string[]>([""]);
+  const [steps, setSteps] = useState("");
+  const [file, setFile] = useState<File | null>(null);
 
-  const PAGE_SIZE = 6;
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  async function fetchFavorites(pageNumber: number) {
+  function updateIngredient(value: string, index: number) {
+    const updated = [...ingredients];
+    updated[index] = value;
+    setIngredients(updated);
+  }
+
+  function addIngredient() {
+    setIngredients([...ingredients, ""]);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     setLoading(true);
+    setError("");
+
     try {
-      const data = await listFavorites(pageNumber, PAGE_SIZE);
-      setRecipes(data.recipes ?? []);
-      setTotalPages(data.total_pages ?? 1);
-      setPage(data.page ?? pageNumber);
+      const newRecipe = await createRecipe({
+        title,
+        ingredients,
+        steps,
+        file,
+      });
+
+      navigate(`/recipe/${newRecipe.id}`);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
-  }
-
-  useEffect(() => {
-    fetchFavorites(1);
-  }, []);
-
-  function nextPage() {
-    if (page < totalPages) fetchFavorites(page + 1);
-  }
-
-  function prevPage() {
-    if (page > 1) fetchFavorites(page - 1);
-  }
-
-  async function toggleFavorite(e: React.MouseEvent, recipeId: number) {
-    e.stopPropagation();
-
-    setRecipes((prev) =>
-      prev.map((r) =>
-        r.id === recipeId ? { ...r, is_favorite: !r.is_favorite } : r
-      )
-    );
-
-    try {
-      const recipe = recipes.find((r) => r.id === recipeId);
-      recipe?.is_favorite
-        ? await removeFavorite(recipeId)
-        : await addFavorite(recipeId);
-    } catch (err: any) {
-      alert(err?.message || "Failed to update favorite");
-    }
-
-    fetchFavorites(page);
   }
 
   return (
@@ -65,47 +49,77 @@ export default function Favorites() {
       <HeaderTabs />
 
       <div style={styles.headerSection}>
-        <h1 style={styles.title}>Your Favorite Recipes</h1>
-        <p style={styles.subtitle}>All the meals you love in one place ❤️</p>
+        <h1 style={styles.title}>Add New Recipe</h1>
+        <p style={styles.subtitle}>Create and save your favorite meals 🍽️</p>
       </div>
 
-      {loading && <p style={styles.loading}>Loading favorites...</p>}
-      {error && <p style={styles.error}>{error}</p>}
+      <div style={styles.card}>
+        {error && <p style={styles.error}>{error}</p>}
 
-      <div style={styles.grid}>
-        {recipes.map((recipe) => (
-          <div
-            key={recipe.id}
-            onClick={() => navigate(`/recipe/${recipe.id}`)}
-            style={styles.card}
-          >
-            <div onClick={(e) => toggleFavorite(e, recipe.id)} style={styles.heart}>
-              {recipe.is_favorite ? "❤️" : "🤍"}
-            </div>
-
-            <img
-              src={`http://127.0.0.1:8008${recipe.image_url}`}
-              alt={recipe.title}
-              style={styles.cardImg}
+        <form onSubmit={handleSubmit} style={styles.form}>
+          {/* Title */}
+          <div style={styles.field}>
+            <label style={styles.label}>Title</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              style={styles.input}
             />
-
-            <h3 style={styles.cardTitle}>{recipe.title}</h3>
           </div>
-        ))}
-      </div>
 
-      <div style={styles.pagination}>
-        <button onClick={prevPage} disabled={page === 1} style={styles.pageBtn}>
-          Prev
-        </button>
+          {/* Ingredients */}
+          <div style={styles.field}>
+            <label style={styles.label}>Ingredients</label>
 
-        <span style={styles.pageInfo}>
-          Page {page} of {totalPages}
-        </span>
+            {ingredients.map((ing, i) => (
+              <input
+                key={i}
+                type="text"
+                value={ing}
+                placeholder={`Ingredient ${i + 1}`}
+                onChange={(e) => updateIngredient(e.target.value, i)}
+                required
+                style={styles.input}
+              />
+            ))}
 
-        <button onClick={nextPage} disabled={page === totalPages} style={styles.pageBtn}>
-          Next
-        </button>
+            <button
+              type="button"
+              onClick={addIngredient}
+              style={styles.addBtn}
+            >
+              + Add Ingredient
+            </button>
+          </div>
+
+          {/* Steps */}
+          <div style={styles.field}>
+            <label style={styles.label}>Steps</label>
+            <textarea
+              rows={5}
+              value={steps}
+              onChange={(e) => setSteps(e.target.value)}
+              required
+              style={styles.textarea}
+            />
+          </div>
+
+          {/* Image */}
+          <div style={styles.field}>
+            <label style={styles.label}>Image (optional)</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+            />
+          </div>
+
+          <button type="submit" disabled={loading} style={styles.submitBtn}>
+            {loading ? "Creating..." : "Create Recipe"}
+          </button>
+        </form>
       </div>
     </div>
   );
@@ -137,68 +151,74 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#666",
   },
 
-  loading: { textAlign: "center", color: "#555" },
-  error: { textAlign: "center", color: "red" },
-
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-    gap: 25,
-    marginTop: 20,
-  },
-
   card: {
-    cursor: "pointer",
     backgroundColor: "white",
+    maxWidth: 600,
+    margin: "0 auto",
+    padding: 30,
     borderRadius: 12,
-    padding: 10,
     boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-    position: "relative",
-    transition: "transform 0.15s ease, box-shadow 0.2s ease",
   },
 
-  cardImg: {
-    width: "100%",
-    height: 180,
-    objectFit: "cover",
-    borderRadius: 10,
+  error: {
+    color: "red",
+    textAlign: "center",
+    marginBottom: 15,
   },
 
-  cardTitle: {
-    marginTop: 12,
-    fontSize: 18,
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 20,
+  },
+
+  field: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+  },
+
+  label: {
     fontWeight: 600,
+    fontSize: 15,
     color: "#333",
   },
 
-  heart: {
-    position: "absolute",
-    top: 10,
-    left: 10,
-    fontSize: 22,
-    cursor: "pointer",
-    zIndex: 3,
-  },
-
-  pagination: {
-    marginTop: 30,
-    display: "flex",
-    justifyContent: "center",
-    gap: 12,
-    alignItems: "center",
-  },
-
-  pageBtn: {
-    padding: "8px 14px",
+  input: {
+    padding: "10px 12px",
     borderRadius: 8,
     border: "1px solid #ccc",
-    backgroundColor: "white",
+    fontSize: 15,
+  },
+
+  textarea: {
+    padding: "10px 12px",
+    borderRadius: 8,
+    border: "1px solid #ccc",
+    fontSize: 15,
+    resize: "vertical",
+  },
+
+  addBtn: {
+    padding: "8px 10px",
+    marginTop: 5,
+    backgroundColor: "#F0F2F5",
+    border: "1px solid #ddd",
+    borderRadius: 8,
     cursor: "pointer",
+    width: "fit-content",
     fontWeight: 600,
   },
 
-  pageInfo: {
-    fontSize: 15,
-    color: "#444",
+  submitBtn: {
+    padding: "12px 0",
+    backgroundColor: "#007bff",
+    color: "white",
+    border: "none",
+    borderRadius: 8,
+    fontSize: 17,
+    cursor: "pointer",
+    fontWeight: 600,
+    marginTop: 10,
   },
 };

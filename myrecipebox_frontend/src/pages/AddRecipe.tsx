@@ -47,69 +47,155 @@ export default function AddRecipe() {
   return (
     <div>
       <HeaderTabs />
-      <h1>Add New Recipe</h1>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 20 }}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: 40,
+          width: "100%",
+        }}
       >
-        {/* Title */}
-        <div>
-          <label>Title</label>
-          <input 
-            type="text" 
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required 
-          />
-        </div>
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 500,
+            background: "#fff",
+            padding: 24,
+            borderRadius: 12,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          }}
+        >
+          <h1
+            style={{
+              fontSize: 32,
+              fontWeight: 600,
+              marginBottom: 20,
+              textAlign: "center",
+            }}
+          >
+            Add New Recipe
+          </h1>
 
-        {/* Ingredients */}
-        <div>
-          <label>Ingredients</label>
-          {ingredients.map((ing, i) => (
-            <input
-              key={i}
-              type="text"
-              value={ing}
-              placeholder={`Ingredient ${i + 1}`}
-              onChange={(e) => updateIngredient(e.target.value, i)}
-              required
-              style={{ marginBottom: 6 }}
-            />
-          ))}
-          <button type="button" onClick={addIngredient}>
-            + Add Ingredient
-          </button>
-        </div>
+          {error && (
+            <p style={{ color: "red", textAlign: "center", marginBottom: 12 }}>
+              {error}
+            </p>
+          )}
 
-        {/* Steps */}
-        <div>
-          <label>Steps</label>
-          <textarea
-            rows={5}
-            value={steps}
-            onChange={(e) => setSteps(e.target.value)}
-            required
-          />
-        </div>
+          <form
+            onSubmit={handleSubmit}
+            style={{ display: "flex", flexDirection: "column", gap: 16 }}
+          >
+            {/* Title */}
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <label style={{ marginBottom: 4, fontWeight: 500 }}>Title</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                style={{
+                  padding: 10,
+                  border: "1px solid #ccc",
+                  borderRadius: 6,
+                  fontSize: 16,
+                }}
+              />
+            </div>
 
-        {/* Image */}
-        <div>
-          <label>Image (optional)</label>
-          <input 
-            type="file" 
-            accept="image/*"
-            onChange={(e) => setFile(e.target.files?.[0] || null)} 
-          />
-        </div>
+            {/* Ingredients */}
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <label style={{ marginBottom: 4, fontWeight: 500 }}>
+                Ingredients
+              </label>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Creating..." : "Create Recipe"}
-        </button>
-      </form>
+              {ingredients.map((ing, i) => (
+                <input
+                  key={i}
+                  type="text"
+                  value={ing}
+                  placeholder={`Ingredient ${i + 1}`}
+                  onChange={(e) => updateIngredient(e.target.value, i)}
+                  required
+                  style={{
+                    padding: 10,
+                    border: "1px solid #ccc",
+                    borderRadius: 6,
+                    marginBottom: 8,
+                    fontSize: 16,
+                  }}
+                />
+              ))}
+
+              <button
+                type="button"
+                onClick={addIngredient}
+                style={{
+                  background: "#f2f4f7",
+                  border: "none",
+                  padding: "8px 12px",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                  fontWeight: 500,
+                  width: "fit-content",
+                }}
+              >
+                + Add Ingredient
+              </button>
+            </div>
+
+            {/* Steps */}
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <label style={{ marginBottom: 4, fontWeight: 500 }}>Steps</label>
+              <textarea
+                rows={5}
+                value={steps}
+                onChange={(e) => setSteps(e.target.value)}
+                required
+                style={{
+                  padding: 10,
+                  border: "1px solid #ccc",
+                  borderRadius: 6,
+                  fontSize: 16,
+                }}
+              />
+            </div>
+
+            {/* Image */}
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <label style={{ marginBottom: 4, fontWeight: 500 }}>
+                Image (optional)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+              />
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                marginTop: 8,
+                padding: "12px 0",
+                background: "#007bff",
+                color: "white",
+                border: "none",
+                borderRadius: 6,
+                fontSize: 18,
+                fontWeight: 600,
+                cursor: "pointer",
+                opacity: loading ? 0.6 : 1,
+              }}
+            >
+              {loading ? "Creating..." : "Create Recipe"}
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
