@@ -32,21 +32,16 @@ export default function Favorites() {
   }, []);
 
   function nextPage() {
-    if (page < totalPages) {
-      fetchFavorites(page + 1);
-    }
+    if (page < totalPages) fetchFavorites(page + 1);
   }
 
   function prevPage() {
-    if (page > 1) {
-      fetchFavorites(page - 1);
-    }
+    if (page > 1) fetchFavorites(page - 1);
   }
 
   async function toggleFavorite(e: React.MouseEvent, recipeId: number) {
     e.stopPropagation();
 
-    // Immediately update UI
     setRecipes((prev) =>
       prev.map((r) =>
         r.id === recipeId ? { ...r, is_favorite: !r.is_favorite } : r
@@ -55,88 +50,155 @@ export default function Favorites() {
 
     try {
       const recipe = recipes.find((r) => r.id === recipeId);
-
-      if (recipe?.is_favorite) {
-        await removeFavorite(recipeId);
-      } else {
-        await addFavorite(recipeId);
-      }
+      recipe?.is_favorite
+        ? await removeFavorite(recipeId)
+        : await addFavorite(recipeId);
     } catch (err: any) {
       alert(err?.message || "Failed to update favorite");
     }
 
-    // Refresh favorites (since un-favoriting removes it)
     fetchFavorites(page);
   }
 
   return (
-    <div>
+    <div style={styles.page}>
       <HeaderTabs />
-      <h1>Your Favorite Recipes</h1>
-      <p>All the meals you love in one place ❤️</p>
 
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      <div style={styles.headerSection}>
+        <h1 style={styles.title}>Your Favorite Recipes</h1>
+        <p style={styles.subtitle}>All the meals you love in one place ❤️</p>
+      </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-          gap: 20,
-          marginTop: 20,
-        }}
-      >
+      {loading && <p style={styles.loading}>Loading favorites...</p>}
+      {error && <p style={styles.error}>{error}</p>}
+
+      <div style={styles.grid}>
         {recipes.map((recipe) => (
           <div
             key={recipe.id}
             onClick={() => navigate(`/recipe/${recipe.id}`)}
-            style={{
-              cursor: "pointer",
-              border: "1px solid #ddd",
-              padding: 10,
-              borderRadius: 10,
-              boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-              position: "relative",
-            }}
+            style={styles.card}
           >
-            {/* Heart icon */}
-            <div
-              onClick={(e) => toggleFavorite(e, recipe.id)}
-              style={{
-                position: "absolute",
-                top: 10,
-                left: 10,
-                fontSize: 22,
-                cursor: "pointer",
-                userSelect: "none",
-              }}
-            >
+            <div onClick={(e) => toggleFavorite(e, recipe.id)} style={styles.heart}>
               {recipe.is_favorite ? "❤️" : "🤍"}
             </div>
 
             <img
               src={`http://127.0.0.1:8008${recipe.image_url}`}
               alt={recipe.title}
-              style={{ width: "100%", borderRadius: 10 }}
+              style={styles.cardImg}
             />
 
-            <h3 style={{ marginTop: 10 }}>{recipe.title}</h3>
+            <h3 style={styles.cardTitle}>{recipe.title}</h3>
           </div>
         ))}
       </div>
 
-      {/* Pagination */}
-      <div style={{ marginTop: 20, display: "flex", gap: 10 }}>
-        <button onClick={prevPage} disabled={page === 1}>
+      <div style={styles.pagination}>
+        <button onClick={prevPage} disabled={page === 1} style={styles.pageBtn}>
           Prev
         </button>
-        <span>
+
+        <span style={styles.pageInfo}>
           Page {page} of {totalPages}
         </span>
-        <button onClick={nextPage} disabled={page === totalPages}>
+
+        <button onClick={nextPage} disabled={page === totalPages} style={styles.pageBtn}>
           Next
         </button>
       </div>
     </div>
   );
 }
+
+const styles: Record<string, React.CSSProperties> = {
+  page: {
+    padding: "20px 40px",
+    paddingTop: "100px",
+    fontFamily: "Inter, sans-serif",
+    minHeight: "100vh",
+    backgroundColor: "#F7F9FC",
+  },
+
+  headerSection: {
+    textAlign: "center",
+    marginBottom: 30,
+  },
+
+  title: {
+    fontSize: 34,
+    fontWeight: 700,
+    color: "#222",
+    marginBottom: 8,
+  },
+
+  subtitle: {
+    fontSize: 16,
+    color: "#666",
+  },
+
+  loading: { textAlign: "center", color: "#555" },
+  error: { textAlign: "center", color: "red" },
+
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+    gap: 25,
+    marginTop: 20,
+  },
+
+  card: {
+    cursor: "pointer",
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 10,
+    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+    position: "relative",
+    transition: "transform 0.15s ease, box-shadow 0.2s ease",
+  },
+
+  cardImg: {
+    width: "100%",
+    height: 180,
+    objectFit: "cover",
+    borderRadius: 10,
+  },
+
+  cardTitle: {
+    marginTop: 12,
+    fontSize: 18,
+    fontWeight: 600,
+    color: "#333",
+  },
+
+  heart: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    fontSize: 22,
+    cursor: "pointer",
+    zIndex: 3,
+  },
+
+  pagination: {
+    marginTop: 30,
+    display: "flex",
+    justifyContent: "center",
+    gap: 12,
+    alignItems: "center",
+  },
+
+  pageBtn: {
+    padding: "8px 14px",
+    borderRadius: 8,
+    border: "1px solid #ccc",
+    backgroundColor: "white",
+    cursor: "pointer",
+    fontWeight: 600,
+  },
+
+  pageInfo: {
+    fontSize: 15,
+    color: "#444",
+  },
+};

@@ -13,7 +13,7 @@ export default function AuthTabs() {
 
   return (
     <div style={styles.page}>
-      {/* LEFT IMAGE SIDE */}
+      {/* LEFT IMAGE */}
       <div
         style={{
           ...styles.imageSide,
@@ -21,27 +21,36 @@ export default function AuthTabs() {
         }}
       />
 
-      {/* RIGHT FORM SIDE */}
+      {/* RIGHT SIDE */}
       <div style={styles.formSide}>
         <h2 style={styles.title}>MyRecipeBox - Your AI Cooking Companion</h2>
 
-        {/* TABS */}
-        <div style={styles.tabRow}>
-          <button
+        {/* TRUE TABS */}
+        <div style={styles.tabsWrapper}>
+          <div
             onClick={() => setActiveTab("login")}
-            style={activeTab === "login" ? styles.activeTab : styles.inactiveTab}
+            style={
+              activeTab === "login"
+                ? { ...styles.tab, ...styles.tabActive }
+                : styles.tab
+            }
           >
             Login
-          </button>
+          </div>
 
-          <button
+          <div
             onClick={() => setActiveTab("register")}
-            style={activeTab === "register" ? styles.activeTab : styles.inactiveTab}
+            style={
+              activeTab === "register"
+                ? { ...styles.tab, ...styles.tabActive }
+                : styles.tab
+            }
           >
             Register
-          </button>
+          </div>
         </div>
 
+        {/* FORM CONTENT */}
         <div style={styles.formContainer}>
           {activeTab === "login" && <Login />}
           {activeTab === "register" && <Register />}
@@ -51,61 +60,70 @@ export default function AuthTabs() {
   );
 }
 
-/* =====================================
-   INLINE STYLES SECTION
-   ===================================== */
 const styles: { [key: string]: React.CSSProperties } = {
   page: {
     display: "flex",
     height: "100vh",
     width: "100vw",
     overflow: "hidden",
-    fontFamily: "sans-serif",
+    fontFamily: "Arial, sans-serif",
   },
+
   imageSide: {
     width: "50%",
+    height: "100%",
     backgroundSize: "cover",
     backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    flexShrink: 0, 
   },
+
   formSide: {
     width: "50%",
+    height: "100vh",
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
     alignItems: "center",
     padding: "40px",
     backgroundColor: "#fafafa",
+    overflowY: "auto",
+    boxSizing: "border-box",
   },
+
   title: {
-    fontSize: "28px",
+    fontSize: "26px",
     fontWeight: 700,
-    marginBottom: "20px",
-    color: "#333",
+    marginBottom: "25px",
+    color: "#222",
     textAlign: "center",
   },
-  tabRow: {
+
+  /* TABS LAYOUT */
+  tabsWrapper: {
     display: "flex",
-    gap: "12px",
-    marginBottom: "20px",
+    width: "100%",
+    maxWidth: "380px",
+    borderBottom: "2px solid #ddd",
+    marginBottom: "25px",
   },
-  activeTab: {
-    padding: "10px 24px",
-    borderRadius: "8px",
-    backgroundColor: "#007AFF",
-    color: "white",
-    fontWeight: 600,
-    border: "none",
+
+  tab: {
+    flex: 1,
+    textAlign: "center",
+    paddingBottom: "10px",
     cursor: "pointer",
-  },
-  inactiveTab: {
-    padding: "10px 24px",
-    borderRadius: "8px",
-    backgroundColor: "#ddd",
-    color: "#333",
+    fontSize: "18px",
     fontWeight: 500,
-    border: "none",
-    cursor: "pointer",
+    color: "#777",
+    transition: "0.2s ease",
   },
+
+  tabActive: {
+    color: "#000",
+    fontWeight: 700,
+    borderBottom: "3px solid #007AFF",
+  },
+
   formContainer: {
     width: "100%",
     maxWidth: "380px",

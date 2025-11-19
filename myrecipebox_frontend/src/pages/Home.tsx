@@ -3,7 +3,6 @@ import { listRecipes, searchRecipes, addFavorite, removeFavorite } from "../api"
 import { useNavigate } from "react-router-dom";
 import HeaderTabs from "../components/HeaderTabs";
 
-
 export default function Home() {
   const [recipes, setRecipes] = useState<any[]>([]);
   const [page, setPage] = useState<number>(1);
@@ -93,58 +92,43 @@ export default function Home() {
   }
 
   return (
-    <div>
+    <div style={styles.page}>
       <HeaderTabs />
-      <h1>Discover your next meal</h1>
-      <p>Explore thousands of recipes from around the world.</p>
 
-      {/* Search */}
-      <div style={{ marginTop: 12, marginBottom: 12, display: "flex", gap: 8 }}>
-        <input
-          type="text"
-          placeholder="Search by title..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <button onClick={onSearchClick}>Search</button>
+      <div style={styles.headerSection}>
+        <h1 style={styles.title}>Discover Your Next Meal</h1>
+        <p style={styles.subtitle}>Explore thousands of chef-crafted recipes.</p>
+
+        {/* Search Bar */}
+        <div style={styles.searchRow}>
+          <input
+            type="text"
+            placeholder="Search recipes..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            style={styles.searchInput}
+          />
+          <button onClick={onSearchClick} style={styles.searchBtn}>
+            Search
+          </button>
+        </div>
       </div>
 
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {loading && <p style={styles.loading}>Loading recipes...</p>}
+      {error && <p style={styles.error}>{error}</p>}
 
-      {/* Card Grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-          gap: 20,
-          marginTop: 20,
-        }}
-      >
+      {/* Recipe Grid */}
+      <div style={styles.grid}>
         {recipes.map((recipe) => (
           <div
             key={recipe.id}
             onClick={() => navigate(`/recipe/${recipe.id}`)}
-            style={{
-              cursor: "pointer",
-              border: "1px solid #ddd",
-              padding: 10,
-              borderRadius: 10,
-              boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-              position: "relative",
-            }}
+            style={styles.card}
           >
-            {/* Heart icon */}
+            {/* Favorite heart */}
             <div
               onClick={(e) => toggleFavorite(e, recipe.id)}
-              style={{
-                position: "absolute",
-                top: 10,
-                left: 10,
-                fontSize: 22,
-                cursor: "pointer",
-                userSelect: "none",
-              }}
+              style={styles.heart}
             >
               {recipe.is_favorite ? "❤️" : "🤍"}
             </div>
@@ -152,27 +136,158 @@ export default function Home() {
             <img
               src={`http://127.0.0.1:8008${recipe.image_url}`}
               alt={recipe.title}
-              style={{ width: "100%", borderRadius: 10 }}
+              style={styles.cardImg}
             />
 
-            <h3 style={{ marginTop: 10 }}>{recipe.title}</h3>
-            {/* <p>{recipe.is_favorite ? "true":"false"}</p> */}
+            <h3 style={styles.cardTitle}>{recipe.title}</h3>
           </div>
         ))}
       </div>
 
       {/* Pagination */}
-      <div style={{ marginTop: 20, display: "flex", gap: 10 }}>
-        <button onClick={prevPage} disabled={page === 1}>
+      <div style={styles.pagination}>
+        <button onClick={prevPage} disabled={page === 1} style={styles.pageBtn}>
           Prev
         </button>
-        <span>
+
+        <span style={styles.pageInfo}>
           Page {page} of {totalPages}
         </span>
-        <button onClick={nextPage} disabled={page === totalPages}>
+
+        <button
+          onClick={nextPage}
+          disabled={page === totalPages}
+          style={styles.pageBtn}
+        >
           Next
         </button>
       </div>
     </div>
   );
 }
+
+const styles: Record<string, React.CSSProperties> = {
+  page: {
+  padding: "20px 40px",
+  paddingTop: "100px", // space for fixed header
+  fontFamily: "Inter, sans-serif",
+  minHeight: "100vh",
+  backgroundColor: "#F7F9FC", // cleaner blue-ish background
+},
+
+
+  headerSection: {
+    textAlign: "center",
+    marginTop: 10,
+    marginBottom: 30,
+  },
+
+  title: {
+    fontSize: 34,
+    fontWeight: 700,
+    color: "#222",
+    marginBottom: 8,
+  },
+
+  subtitle: {
+    fontSize: 16,
+    color: "#666",
+    marginBottom: 20,
+  },
+
+  searchRow: {
+    display: "flex",
+    justifyContent: "center",
+    gap: 10,
+    marginTop: 10,
+  },
+
+  searchInput: {
+    width: "320px",
+    padding: "10px 14px",
+    borderRadius: 8,
+    border: "1px solid #ccc",
+    fontSize: 15,
+  },
+
+  searchBtn: {
+    padding: "10px 18px",
+    backgroundColor: "#007AFF",
+    color: "white",
+    border: "none",
+    borderRadius: 8,
+    cursor: "pointer",
+    fontWeight: 600,
+  },
+
+  loading: {
+    textAlign: "center",
+    color: "#555",
+  },
+
+  error: {
+    textAlign: "center",
+    color: "red",
+  },
+
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+    gap: 25,
+    marginTop: 20,
+  },
+
+  card: {
+    cursor: "pointer",
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 10,
+    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+    position: "relative",
+    transition: "transform 0.15s ease, box-shadow 0.2s ease",
+  },
+
+  heart: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    fontSize: 22,
+    cursor: "pointer",
+    zIndex: 3,
+  },
+
+  cardImg: {
+    width: "100%",
+    borderRadius: 10,
+    height: 180,
+    objectFit: "cover",
+  },
+
+  cardTitle: {
+    marginTop: 12,
+    fontSize: 18,
+    fontWeight: 600,
+    color: "#333",
+  },
+
+  pagination: {
+    marginTop: 30,
+    display: "flex",
+    justifyContent: "center",
+    gap: 12,
+    alignItems: "center",
+  },
+
+  pageBtn: {
+    padding: "8px 14px",
+    borderRadius: 8,
+    border: "1px solid #ccc",
+    backgroundColor: "white",
+    cursor: "pointer",
+  },
+
+  pageInfo: {
+    fontSize: 15,
+    color: "#444",
+  },
+};

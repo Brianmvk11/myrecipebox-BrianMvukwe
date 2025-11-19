@@ -35,7 +35,7 @@ export default function AISuggestions() {
       }
 
       const data = await res.json();
-      setAiRecipe(data.recipes[0]); // only 1 recipe
+      setAiRecipe(data.recipes[0]);
     } catch (err: any) {
       alert(err.message);
     }
@@ -49,7 +49,6 @@ export default function AISuggestions() {
     setSaving(true);
 
     try {
-      // Create the recipe
       const created = await createRecipe({
         title: aiRecipe.title,
         ingredients: aiRecipe.ingredients,
@@ -57,12 +56,9 @@ export default function AISuggestions() {
         file: uploadFile || null,
       });
 
-      // Only add to favorites after user clicks save
       await addFavorite(created.id);
 
       alert("Recipe saved & added to favorites!");
-
-      // Navigate to the recipe detail page
       navigate(`/recipe/${created.id}`);
     } catch (err: any) {
       alert(err.message);
@@ -72,29 +68,34 @@ export default function AISuggestions() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={styles.page}>
       <HeaderTabs />
-      <h2>AI Suggestions</h2>
 
-      <div style={{ marginBottom: 12 }}>
-        <p>Enter ingredients (comma separated):</p>
+      <div style={styles.headerSection}>
+        <h1 style={styles.title}>AI Recipe Suggestions</h1>
+        <p style={styles.subtitle}>Let AI craft a meal idea based on your ingredients</p>
+      </div>
+
+      {/* Input Section */}
+      <div style={styles.inputRow}>
         <input
           type="text"
           value={ingredients}
           onChange={(e) => setIngredients(e.target.value)}
           placeholder="e.g. chicken, rice, tomato"
-          style={{ width: "300px", padding: "8px" }}
+          style={styles.textInput}
         />
-        <button onClick={handleSuggest} style={{ marginLeft: "10px" }}>
+        <button onClick={handleSuggest} style={styles.suggestBtn}>
           Suggest
         </button>
       </div>
 
-      {loading && <p>Generating recipe...</p>}
+      {loading && <p style={styles.loading}>Generating recipe...</p>}
 
+      {/* AI Recipe Card */}
       {aiRecipe && (
-        <div style={{ marginTop: 20, padding: 15, border: "1px solid #ccc" }}>
-          <h3>{aiRecipe.title}</h3>
+        <div style={styles.card}>
+          <h3 style={styles.cardTitle}>{aiRecipe.title}</h3>
 
           <strong>Ingredients:</strong>
           <ul>
@@ -106,7 +107,7 @@ export default function AISuggestions() {
           <strong>Steps:</strong>
           <p>{aiRecipe.steps}</p>
 
-          <div>
+          <div style={{ marginTop: 10 }}>
             <p>Upload image (optional):</p>
             <input
               type="file"
@@ -118,7 +119,7 @@ export default function AISuggestions() {
           <button
             onClick={handleSaveRecipe}
             disabled={saving}
-            style={{ marginTop: 10 }}
+            style={styles.saveBtn}
           >
             {saving ? "Saving..." : "Save Recipe & Add to Favorites"}
           </button>
@@ -127,3 +128,86 @@ export default function AISuggestions() {
     </div>
   );
 }
+
+const styles: Record<string, React.CSSProperties> = {
+  page: {
+    padding: "20px 40px",
+    paddingTop: "100px",
+    fontFamily: "Inter, sans-serif",
+    minHeight: "100vh",
+    backgroundColor: "#F7F9FC",
+  },
+
+  headerSection: {
+    textAlign: "center",
+    marginBottom: 25,
+  },
+
+  title: {
+    fontSize: 34,
+    fontWeight: 700,
+    color: "#222",
+    marginBottom: 8,
+  },
+
+  subtitle: {
+    fontSize: 16,
+    color: "#666",
+  },
+
+  inputRow: {
+    display: "flex",
+    justifyContent: "center",
+    gap: 10,
+    marginTop: 20,
+    marginBottom: 25,
+  },
+
+  textInput: {
+    width: 350,
+    padding: "10px 14px",
+    borderRadius: 8,
+    border: "1px solid #ccc",
+    fontSize: 15,
+  },
+
+  suggestBtn: {
+    padding: "10px 18px",
+    backgroundColor: "#007AFF",
+    color: "white",
+    border: "none",
+    borderRadius: 8,
+    cursor: "pointer",
+    fontWeight: 600,
+  },
+
+  loading: { textAlign: "center", color: "#555", marginTop: 10 },
+
+  card: {
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 20,
+    maxWidth: 600,
+    margin: "0 auto",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+    marginTop: 20,
+  },
+
+  cardTitle: {
+    fontSize: 22,
+    fontWeight: 700,
+    marginBottom: 12,
+    color: "#333",
+  },
+
+  saveBtn: {
+    marginTop: 15,
+    padding: "10px 18px",
+    backgroundColor: "#10B981",
+    color: "white",
+    border: "none",
+    borderRadius: 8,
+    cursor: "pointer",
+    fontWeight: 600,
+  },
+};
